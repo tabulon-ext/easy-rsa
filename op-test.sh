@@ -102,7 +102,7 @@ curl_it () {
 # RUN unit test
 run_unit_test ()
 {
-	if [ "${utest_bin_ok}" ] && [ "${ssl_bin_ok}" ]; then
+	if [ "${utest_bin_ok}" ]; then
 
 		# Start unit tests
 		log ">>> BEGIN unit tests:"
@@ -228,7 +228,8 @@ download_unit_test_help () {
 
 # Run shellcheck
 run_shellcheck () {
-	if [ "$enable_shellcheck" ] && [ "$sc_bin_ok" ] && [ "$EASYRSA_NIX" ]; then
+	sc_bin=shellcheck
+	if [ "$enable_shellcheck" ] && [ "$EASYRSA_NIX" ]; then
 		# shell-check easyrsa3/easyrsa
 		if [ -e easyrsa3/easyrsa ]; then
 			if "${sc_bin}" -s sh -S warning -x easyrsa3/easyrsa; then
@@ -238,6 +239,17 @@ run_shellcheck () {
 			fi
 		else
 			log "easyrsa binary not present, not using shellcheck"
+		fi
+
+		# shell-check dev/easyrsa-tools.lib
+		if [ -e dev/easyrsa-tools.lib ]; then
+			if "${sc_bin}" -s sh -S warning -x dev/easyrsa-tools.lib; then
+				log "shellcheck dev/easyrsa-tools.lib completed - ok"
+			else
+				log "shellcheck dev/easyrsa-tools.lib completed - FAILED"
+			fi
+		else
+			log "dev/easyrsa-tools.lib not present, not using shellcheck"
 		fi
 
 		# shell-check easyrsa-unit-tests.sh
@@ -386,7 +398,7 @@ while [ -n "$1" ]; do
 	-v)					verb='-v' ;;
 	-vv)				verb='-vv' ;;
 	-sc)				enable_shellcheck=1 ;;
-	-o3)				enable_openssl3=1 ;;
+	-o3)				: ;; # ignored
 	-p)					use_passwords='-p' ;;
 	-dr)				dry_run=1 ;;
 	-nt|--no-test)		unset -v enable_unit_test ;;
@@ -420,7 +432,10 @@ help_verb="-vv"
 sc_file='shellcheck'
 unset -v sc_bin sc_bin_ok
 # v 0.8.0
-sc_hash='SHA256(shellcheck)= f4bce23c11c3919c1b20bcb0f206f6b44c44e26f2bc95f8aa708716095fa0651'
+#sc_hash='SHA256(shellcheck)= f4bce23c11c3919c1b20bcb0f206f6b44c44e26f2bc95f8aa708716095fa0651'
+
+# v 0.9.0
+sc_hash='SHA256(shellcheck)= 7087178d54de6652b404c306233264463cb9e7a9afeb259bb663cc4dbfd64149'
 
 ssl_file='openssl'
 unset -v ssl_bin ssl_bin_ok
@@ -438,8 +453,8 @@ ssl_hash='SHA256(openssl)= 85b562891087d4c64868d8d1f0a381407d8e23fb66c37ce9baad5
 
 # Here we go ..
 
-download_shellcheck
-download_opensslv3
+#download_shellcheck
+#download_opensslv3
 download_unit_test
 download_unit_test_help
 

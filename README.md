@@ -1,7 +1,7 @@
 [![CI](https://github.com/Openvpn/easy-rsa/actions/workflows/action.yml/badge.svg)](https://github.com/Openvpn/easy-rsa/actions/workflows/action.yml)
 # Overview
 
-easy-rsa is a CLI utility to build and manage a PKI CA. In laymen's terms,
+easy-rsa is a CLI utility to build and manage a PKI CA. In layman's terms,
 this means to create a root certificate authority, and request and sign
 certificates, including intermediate CAs and certificate revocation lists (CRL).
 
@@ -26,7 +26,7 @@ seek help using Easy-RSA:
 The [openvpn-users mailing list](https://lists.sourceforge.net/lists/listinfo/openvpn-users)
 is a good place to post usage or help questions.
 
-You can also try libera.chat IRC network, in channels #openvpn for general support or #easyrsa for development discussion.
+Users of GitHub can report problems to the Easy-RSA `issues` list.
 
 # Branch structure
 
@@ -37,15 +37,29 @@ is recommended to use a release, and priority will be given to bugs identified i
 the most recent release.
 
 The prior 2.x and 1.x versions are available as release branches for
-tracking and possible back-porting of relevant fixes. Branch layout is:
+tracking and possible back-porting of relevant fixes.
 
-    master         <- 3.1, at present
-    v3.x.x            pre-release branches, used for staging branches
-    release/3.0       v3.0.x bugfix/security/openssl updates
-    release/2.x
-    release/1.x
+Branch layout is:
+
+    master             <- Active: v3.2.x - Rolling.
+    v3.<N>.<N>-<LABEL>    Active: Development branches.
+    testing               Sandbox: Subject to change without notice.
+    v3.1.8                Sunset: Bugfix only for v3.1.7
+
+    The following are NOT compatible with OpenSSL version 3:
+
+    v3.0.6                Inactive: Archived.
+    v3.0.5                Inactive: Archived.
+    v3.0.4                Inactive: Archived.
+    release/3.0           Inactive: Archived.
+    release/2.x           Inactive: Archived.
+    release/1.x           Inactive: Unmaintained.
 
 LICENSING info for 3.x is in the [COPYING.md](COPYING.md) file
+
+## Contributing
+
+Please refer to: [doc/EasyRSA-Contributing.md](doc/EasyRSA-Contributing.md)
 
 # Code style, standards
 

@@ -33,13 +33,26 @@ Configuration Reference
 
   1. The file referenced by the `--vars` CLI option
   2. The file referenced by the env-var named `EASYRSA_VARS_FILE`
-  3. The directory referenced by the `EASYRSA_PKI` env-var
-  4. The default PKI directory at `$PWD/pki`
-  4. The directory referenced by the `EASYRSA` env-var
-  5. The directory containing the easyrsa program
+  3. The directory referenced by the `--pki` CLI option (Recommended)
+  4. The directory referenced by the `EASYRSA_PKI` env-var
+  5. The directory referenced by the `EASYRSA` env-var
+  6. The default PKI directory at `$PWD/pki` (See note below)
+  7. The default working directory at `$PWD`
 
   Defining the env-var `EASYRSA_NO_VARS` will override the sourcing of the vars
   file in all cases, including defining it subsequently as a global option.
+
+  Note: If the vars file `$PWD/pki/vars` is sourced then it is forbidden from
+        setting/changing the current PKI, as defined by `EASYRSA_PKI` env-var.
+
+#### Use of `--pki` verses `--vars`
+
+  It is recommended to use option `--pki=DIR` to define your PKI at runtime.
+  This method will always auto-load the `vars` file found in defined PKI.
+
+  In a multi-PKI installation, use of `--vars` can potentially lead to
+  a vars file that is configured to set a PKI which cannot be verified
+  as the expected PKI. Use of `--vars` is not recommended.
 
 #### OpenSSL Config
 
@@ -72,11 +85,45 @@ Additionally, the contents of the env-var `EASYRSA_EXTRA_EXTS` is appended with
 its raw text added to the OpenSSL extensions. The contents are appended as-is to
 the cert extensions; invalid OpenSSL configs will usually result in failure.
 
+Advanced configuration files
+----------------------------
+
+The following files are used by Easy-RSA to configure the SSL library:
+* openssl-easyrsa.cnf - Configuration for Certificate Authority [CA]
+* x509-types: COMMON, ca, server, serverClient, client, codeSigning, email, kdc.
+  Each type is used to define an X509 purpose.
+
+Since Easy-RSA version 3.2.0, these files are created on-demand by each command
+that requires them.  However, if these files are found in one of the supported
+locations then those files are used instead, no temporary files are created.
+
+The supported locations are listed, in order of preference, as follows:
+* `EASYRSA_PKI` - Always preferred.
+* `EASYRSA` - For Windows.
+* `PWD` - For Windows.
+* `easyrsa` script directory - DEPRECATED, will be removed. Only for Windows.
+* `/usr/local/share/easy-rsa`
+* `/usr/share/easy-rsa`
+* `/etc/easy-rsa`
+
+The files above can all be created by using command: `easyrsa write legacy <DIR>`
+To OVER-WRITE any existing files use command: `eaysrsa write legacy-hard <DIR>`
+`<DIR>` is optional, the default is `EASYRSA_PKI`. This will create the files in
+the current PKI or `<DIR>`.  If created then these new files may take priority
+over system wide versions of the same files.  See `help write` for further details.
+
+Note, Over-writing files:
+Only command `write legacy-hard` will over-write files. All other uses of `write`
+will leave an existing file intact, without error. If you want to over-write an
+existing file using `write` then you must redirect `>foo` the output manually.
+
+Example command: `easyrsa write vars >vars` - This will over-write `./vars`.
+
 Environmental Variables Reference
 ---------------------------------
 
 A list of env-vars, any matching global option (CLI) to set/override it, and a
-possible terse description is shown below:
+short description is shown below:
 
  *  `EASYRSA` - should point to the Easy-RSA top-level dir, where the easyrsa
     script is located.
@@ -84,6 +131,7 @@ possible terse description is shown below:
  *  `EASYRSA_SSL_CONF` - the openssl config file to use
  *  `EASYRSA_PKI` (CLI: `--pki-dir`) - dir to use to hold all PKI-specific
     files, defaults to `$PWD/pki`.
+ *  `EASYRSA_VARS_FILE` (CLI: `--vars`) - Set the `vars` file to use
  *  `EASYRSA_DN` (CLI: `--dn-mode`) - set to the string `cn_only` or `org` to
     alter the fields to include in the req DN
  *  `EASYRSA_REQ_COUNTRY` (CLI: `--req-c`) - set the DN country with org mode
@@ -102,17 +150,14 @@ possible terse description is shown below:
  *  `EASYRSA_ALGO` (CLI: `--use-algo`) - set the crypto alg to use: rsa, ec or
     ed
  *  `EASYRSA_CURVE` (CLI: `--curve`) - define the named EC curve to use
- *  `EASYRSA_EC_DIR` - dir to store generated ecparams
  *  `EASYRSA_CA_EXPIRE` (CLI: `--days`) - set the CA expiration time in days
  *  `EASYRSA_CERT_EXPIRE` (CLI: `--days`) - set the issued cert expiration time
     in days
  *  `EASYRSA_CRL_DAYS` (CLI: `--days`) - set the CRL 'next publish' time in days
  *  `EASYRSA_NS_SUPPORT` (CLI: `--ns-cert`) - string 'yes' or 'no' fields to
-    include the deprecated Netscape extensions
+    include the **deprecated** Netscape extensions
  *  `EASYRSA_NS_COMMENT` (CLI: `--ns-comment`) - string comment to include when
-    using the deprecated Netscape extensions
- *  `EASYRSA_TEMP_FILE` - a temp file to use when dynamically creating req/cert
-    extensions
+    using the **deprecated** Netscape extensions
  *  `EASYRSA_REQ_CN` (CLI: `--req-cn`) - default CN, can only be used in BATCH
     mode
  *  `EASYRSA_DIGEST` (CLI: `--digest`) - set a hash digest to use for req/cert
@@ -123,8 +168,9 @@ possible terse description is shown below:
     password using any openssl password options like pass:1234 or env:var
  *  `EASYRSA_PASSOUT` (CLI: `--passout`) - allows to specify a source for
     password using any openssl password options like pass:1234 or env:var
+ *  `EASYRSA_NO_PASS` (CLI: `--nopass`) - disable use of passwords
  *  `EASYRSA_UMASK` - safe umask to use for file creation. Defaults to `077`
  *  `EASYRSA_NO_UMASK` - disable safe umask. Files will be created using the
     system's default
-
-**NOTE:** the global options need to be provided before the actual commands.
+ *  `EASYRSA_TEMP_DIR` (CLI: `--tmp-dir`) - a temp directory to use for temporary files
+**NOTE:** the global options must be provided before the commands.
